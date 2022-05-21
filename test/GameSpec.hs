@@ -16,17 +16,24 @@ spec = do
       let g' = addSurvivor g (namedSurvivor "Chad")
       (length . survivors) g' `shouldBe` 1
 
-  describe "normalizeGame" $ do
+  describe "normalizeStatus" $ do
     let s = defaultSurvivor
         g = defaultGame
     it "ends the game if all players are dead (>0 players)" $ do
       let g' = g {survivors = [s {alive = False}]}
-      (status . normalizeGame) g' `shouldBe` "Ended"
+      (status . normalizeStatus) g' `shouldBe` Ended
 
     it "game with no players is in progress" $ do
-      let g' = g {status = "Boiled Chicken"}
-      (status . normalizeGame) g' `shouldBe` "In Progress"
+      let g' = g {status = Ended}
+      (status . normalizeStatus) g' `shouldBe` InProgress
 
     it "game with a living player is in progress" $ do
       let g' = g {survivors = [s {alive = False}, s]}
-      (status . normalizeGame) g' `shouldBe` "In Progress"
+      (status . normalizeStatus) g' `shouldBe` InProgress
+
+  describe "normalizeGameLevel" $ do
+    let s = defaultSurvivor
+        g = defaultGame
+    it "sets the game level at the highest living survivor level" $ do
+      let g' = g {survivors = [s {level = Blue}, s {alive = False, level = Red}, s {level = Orange}]}
+      (gameLevel . normalizeGameLevel) g' `shouldBe` Orange

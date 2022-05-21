@@ -2,13 +2,17 @@ module Survivor where
 
 type Equipment = String
 
+data Level = Blue | Yellow | Orange | Red deriving (Ord, Eq, Show)
+
 data Survivor = Survivor
   { name :: String,
     wounds :: Int,
     actionsRemaining :: Int,
     alive :: Bool,
     reserve :: [Equipment],
-    hands :: [Equipment]
+    hands :: [Equipment],
+    experience :: Int,
+    level :: Level
   }
   deriving (Eq, Show)
 
@@ -18,6 +22,7 @@ data Survivor = Survivor
 --  - pickUp
 --  - equip
 --  - unEquip
+--  - killZombie
 
 namedSurvivor :: String -> Survivor
 namedSurvivor name = defaultSurvivor {name = name}
@@ -41,7 +46,15 @@ unEquip s item
   | item `notElem` hands s = s
   | otherwise = s {reserve = item : reserve s, hands = [x | x <- hands s, x /= item]}
 
+killZombie :: Survivor -> Survivor
+killZombie s = normalizeLevel s {experience = experience s + 1}
+
 -- HELPERS
+--  - inventoryCapacity
+--  - normalizeInventory
+--  - wound'
+--  - normalizeLevel
+--  - defaultSurvivor
 
 inventoryCapacity :: Survivor -> Int
 inventoryCapacity s = 5 - (length . reserve) s - (length . hands) s - wounds s
@@ -57,6 +70,13 @@ wound' s
   | wounds s == 1 = s {wounds = 2, alive = False}
   | otherwise = s
 
+normalizeLevel :: Survivor -> Survivor
+normalizeLevel s
+  | experience s > 42 = s {level = Red}
+  | experience s > 18 = s {level = Orange}
+  | experience s > 6 = s {level = Yellow}
+  | otherwise = s {level = Blue}
+
 defaultSurvivor =
   Survivor
     { name = "default",
@@ -64,5 +84,7 @@ defaultSurvivor =
       actionsRemaining = 3,
       alive = True,
       reserve = [],
-      hands = []
+      hands = [],
+      experience = 0,
+      level = Blue
     }

@@ -1,7 +1,7 @@
 module SurvivorSpec where
 
 import Survivor
-import Test.Hspec (describe, it, shouldBe, Spec)
+import Test.Hspec (Spec, describe, it, shouldBe)
 
 spec :: Spec
 spec = do
@@ -63,6 +63,14 @@ spec = do
     it "doesn't move it if it's not in the hands" $ do
       unEquip s "Zero Point Energy Field Manipulator" `shouldBe` s
 
+  describe "killZombie" $ do
+    let s = defaultSurvivor
+    it "increases experience by 1" $ do
+      (experience . killZombie) s `shouldBe` 1
+      (experience . killZombie . killZombie) s `shouldBe` 2
+
+    it "sets the new level as appropriate" $ do
+      (level . killZombie) s {experience = 6} `shouldBe` Yellow
   -- HELPERS
 
   describe "inventoryCapacity" $ do
@@ -91,3 +99,15 @@ spec = do
       let s' = s {hands = []}
       normalizeInventory s' `shouldBe` s'
 
+  describe "normalizeLevel" $ do
+    let s = defaultSurvivor
+    it "sets level Blue" $ do
+      (level . normalizeLevel) s {experience = 6} `shouldBe` Blue
+    it "sets level Yellow" $ do
+      (level . normalizeLevel) s {experience = 7} `shouldBe` Yellow
+      (level . normalizeLevel) s {experience = 18} `shouldBe` Yellow
+    it "sets level Orange" $ do
+      (level . normalizeLevel) s {experience = 19} `shouldBe` Orange
+      (level . normalizeLevel) s {experience = 42} `shouldBe` Orange
+    it "sets level Red" $ do
+      (level . normalizeLevel) s {experience = 43} `shouldBe` Red
