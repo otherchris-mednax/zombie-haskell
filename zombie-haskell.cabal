@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Game
       Lib
       Survivor
   other-modules:
@@ -51,6 +52,8 @@ test-suite zombie-haskell-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      GameSpec
+      SurvivorSpec
       Paths_zombie_haskell
   hs-source-dirs:
       test
